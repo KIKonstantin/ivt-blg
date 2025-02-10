@@ -1,0 +1,41 @@
+.hero
+    position: relative
+    z-index: 0
+    width: 100%
+    height: 100svh
+    overflow: hidden
+    align-content: center
+    hgroup
+        display: flex
+        flex-direction: column
+        gap: 15px
+        justify-content: center
+        align-items: center
+        > span
+            filter: blur(100px)
+            animation: blurIn 1s ease-out forwards 0.3s
+        > h2
+            filter: blur(100px)
+            animation: blurIn 1s ease-out forwards 0.4s
+    &__image
+        position: absolute
+        inset: 0
+        z-index: -1
+        object-fit: cover
+        opacity: 0
+    &__title
+        text-align: center
+        color: $text
+        text-shadow: $text 10px 15px 20px
+        > span
+            filter: blur(100px)
+            animation: blurIn 1s ease-out forwards
+            @for $index from 1 through 10
+                &:nth-child(#{$index})
+                    animation-delay: calc(#{$index} * 100ms)
+
+@keyframes blurIn
+    from
+        filter: blur(100px)
+    to
+        filter: blur(0px)

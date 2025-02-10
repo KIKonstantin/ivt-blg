@@ -1,0 +1,17 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+
+.great-vibes-regular {
+    font-family: "Great Vibes", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  .eb-garamond {
+    font-family: "EB Garamond", serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+  }  
