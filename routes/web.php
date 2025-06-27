@@ -10,19 +10,22 @@ require __DIR__.'/auth.php';
 Route::get('/', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/article/{article}', [ArticleController::class, 'show'])->name('articles.show');
 Route::get('/category/{category}', [CategoryController::class, 'show'])->name('category');
-
+Route::view('/za-men', 'pages.about-me')->name('about-me');
 
 /**
  * Protected routes
  */
 Route::middleware([AdminMiddleware::class])->group(function() {
-    Route::get('/iviblg-admin', function() {
+    Route::get('/iveta-adm', function() {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
     Route::get('articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('article/store', [ArticleController::class, 'store'])->name('article.store');
+    Route::post('/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.uploadImage');
     Route::get('article/{article}/edit', [ArticleController::class, 'edit'])->name('article.edit');
     Route::patch('article/{article}/edit', [ArticleController::class, 'update'])->name('article.update');
     Route::delete('article/{article}', [ArticleController::class, 'destroy'])->name('article.destroy');
 });
+
+

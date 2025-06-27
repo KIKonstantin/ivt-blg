@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::middleware('guest')->group(function () {
-    Route::get('/iviblg-admin/login', function () {
+    Route::get('/iveta-adm/login', function () {
         return view('admin.login');
     })->name('admin.login');
 
-    Route::post('/iviblg-admin/login', [AuthController::class, 'login'])->name('admin.login.submit');
+    Route::post('/iveta-adm/login', [AuthController::class, 'login'])->name('admin.login.submit');
 });
 
 
-Route::post('/iviblg-admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+Route::post('/iveta-adm/logout', [AuthController::class, 'logout'])->name('admin.logout');

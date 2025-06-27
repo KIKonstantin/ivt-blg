@@ -4,7 +4,6 @@
 
 
 <x-homepage.hero />
-<x-homepage.about-me />
 <section class="container">
     <div class="listing">
         @foreach($articles as $article)

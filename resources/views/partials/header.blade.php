@@ -6,11 +6,12 @@
         </div>
     </div>
     <nav>
-    <div class="container">
-        <h3>Категории</h3>
-        <a>История</a>
-        <a>Туризъм</a>
-    </div>
+        <div>
+            <a href="{{route('articles.index')}}">Начало</a>
+        </div>
+        <div>
+            <a href="{{route('about-me')}}">За мен</a>
+        </div>
     </nav>
 </header>
 

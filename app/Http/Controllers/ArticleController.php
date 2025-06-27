@@ -46,7 +46,7 @@ class ArticleController extends Controller
             'slug' => 'required|string|unique:articles',
         ]);
 
-        if($request->hasFile('blog_post_image')){
+        if ($request->hasFile('blog_post_image')) {
             $imagePath = $request->file('blog_post_image')->store('blog_image', 'public');
             $validated['blog_image'] = $imagePath;
         }
@@ -63,7 +63,7 @@ class ArticleController extends Controller
     {
         return view('articles.show', compact('article'));
     }
-    
+
 
     /**
      * Show the form for editing the specified resource.
@@ -104,5 +104,22 @@ class ArticleController extends Controller
     {
         $article->delete();
         return redirect()->route('articles.index')->with('success', "Article has been successfully deleted");
+    }
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('article_images', 'public');
+
+            // Връщаме JSON с линка, който TinyMCE очаква
+            return response()->json([
+                'location' => Storage::url($path)
+            ]);
+        }
+
+        return response()->json(['error' => 'No file uploaded.'], 400);
     }
 }
