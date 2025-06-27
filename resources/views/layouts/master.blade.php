@@ -11,10 +11,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <!-- Lenis -->
     <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.20/dist/lenis.css">
     @vite(['resources/styles/app.css', 'resources/styles/app.sass'])
-    <title>По Петите На Дедите</title>
+    <title>Short Trips Around</title>
     @yield('head')
 
 </head>
