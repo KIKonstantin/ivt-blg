@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title'); // Blog title
             $table->text('description');
             $table->longText('content'); // Blog content
-            $table->text('slug')->unique(); // Unique slug for SEO
+            $table->string('slug')->unique(); // Unique slug for SEO
             $table->string('blog_image')->nullable();
             $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->foreignId('gallery_id')->nullable()->constrained('galleries')->nullOnDelete();
