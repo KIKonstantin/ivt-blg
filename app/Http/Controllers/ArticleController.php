@@ -6,6 +6,8 @@ use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Storage;
+
 class ArticleController extends Controller
 {
     /**
@@ -40,7 +42,7 @@ class ArticleController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required',
-            'blog_post_image' => 'nullable|image|mimes:jpeg,png, jpg, webp, gif, svg|max:2048',
+            'blog_post_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:2048',
             'category_id' => 'required|integer|exists:categories,id',
             'description' => 'nullable|string|max:255',
             'slug' => 'required|string|unique:articles',
@@ -86,11 +88,20 @@ class ArticleController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required',
-            'blog_post_image' => 'nullable|image|mimes:jpeg,png, jpg, webp, gif, svg|max:2048',
+            'blog_post_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:2048',
             'category_id' => 'required|integer|exists:categories,id',
             'description' => 'nullable|string|max:255',
-            'slug' => 'required|string|unique:articles',
+            'slug' => 'required|string|unique:articles,slug,' . $article->id,
         ]);
+
+        if ($request->hasFile('blog_post_image')) {
+            // Delete old image if exists
+            if ($article->blog_image) {
+                Storage::disk('public')->delete($article->blog_image);
+            }
+            $imagePath = $request->file('blog_post_image')->store('blog_image', 'public');
+            $validated['blog_image'] = $imagePath;
+        }
 
         $article->update($validated);
 
@@ -102,6 +113,9 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
+        if ($article->blog_image) {
+            Storage::disk('public')->delete($article->blog_image);
+        }
         $article->delete();
         return redirect()->route('articles.index')->with('success', "Article has been successfully deleted");
     }

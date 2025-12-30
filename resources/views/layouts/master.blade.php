@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -12,25 +12,26 @@
         href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <!-- Lenis -->
-    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.20/dist/lenis.css">
-    @vite(['resources/styles/app.css', 'resources/styles/app.sass'])
-    <title>Short Trips Around</title>
+    
+    @vite(['resources/styles/app.css', 'resources/js/app.js'])
+    <title>Short Trips Around - Travel Blog</title>
     @yield('head')
 
 </head>
 
-<body>
+<body class="font-sans text-gray-800 bg-stone-50 flex flex-col min-h-screen">
     @include('partials.header')
-    <main>
+    
+    <main class="flex-grow container mx-auto px-4 py-8">
         @yield('content')
     </main>
-    <footer>
-        Благодаря за вниманието скъпи читатели
+
+    <footer class="bg-stone-900 text-stone-300 py-8 mt-auto">
+        <div class="container mx-auto px-4 text-center">
+            <p class="font-serif italic text-lg mb-2">Благодаря за вниманието, скъпи читатели</p>
+            <p class="text-sm text-stone-500">&copy; {{ date('Y') }} Short Trips Around. All rights reserved.</p>
+        </div>
     </footer>
-    <!-- Lenis Smoothscroll -->
-    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
-    <script>const lenis = new Lenis({autoRaf: true});</script>
     
     @stack('styles')
     @stack('scripts')

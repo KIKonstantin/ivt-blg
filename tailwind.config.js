@@ -12,7 +12,9 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Roboto', ...defaultTheme.fontFamily.sans],
+                serif: ['"EB Garamond"', ...defaultTheme.fontFamily.serif],
+                display: ['"Great Vibes"', 'cursive'],
             },
         },
     },

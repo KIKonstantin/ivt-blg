@@ -23,4 +23,9 @@ class Article extends Model
         return $this->hasOne(Gallery::class);
     }
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
 }

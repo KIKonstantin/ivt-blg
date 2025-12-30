@@ -5,30 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Админ Панел</title>
-    @vite(['resources/css/app.css'])
+    <title>Admin Panel - Short Trips Around</title>
+    @vite(['resources/styles/app.css', 'resources/js/app.js'])
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-stone-50 font-sans text-stone-800">
     @if (session('success'))
-        <div class="bg-indigo-900 text-center py-4 lg:px-4">
-            <div class="p-2 bg-indigo-800 items-center text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
-              <span class="flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold mr-3">New</span>
-              <span class="font-semibold mr-2 text-left flex-auto">{{ session('success') }}</span>
-              <svg class="fill-current opacity-75 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"/></svg>
+        <div class="fixed top-4 right-4 z-50 animate-bounce">
+            <div class="flex items-center bg-stone-800 text-white px-6 py-4 rounded-lg shadow-xl border border-stone-700">
+                <svg class="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>{{ session('success') }}</span>
             </div>
-          </div>
+        </div>
     @endif
 
     @if (session('error'))
-        <div role="alert">
-            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-              Danger
-            </div>
-            <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-              <p>{{ session('error') }}</p>
-            </div>
-          </div>
+        <div class="fixed top-4 right-4 z-50 animate-bounce">
+            <div class="flex items-center bg-red-100 text-red-800 px-6 py-4 rounded-lg shadow-xl border border-red-200">
+                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ session('error') }}</span>
+           </div>
+        </div>
     @endif
 
     @yield('content')

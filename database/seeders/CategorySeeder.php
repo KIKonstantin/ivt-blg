@@ -14,9 +14,11 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         DB::table('categories')->insert([
-            ['name' => "Travel", 'slug' => 'travel'],
-            ['name' => "History", 'slug' => 'history'],
-            ['name' => "Cozy", 'slug' => 'cozy'],
+            ['name' => "Планина", 'slug' => 'mountain'],
+            ['name' => "Море", 'slug' => 'sea'],
+            ['name' => "Градски туризъм", 'slug' => 'city-tourism'],
+            ['name' => "Култура и История", 'slug' => 'culture-history'],
+            ['name' => "Екзотика", 'slug' => 'exotic'],
         ]);
     }
 }

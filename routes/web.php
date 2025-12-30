@@ -16,9 +16,7 @@ Route::view('/za-men', 'pages.about-me')->name('about-me');
  * Protected routes
  */
 Route::middleware([AdminMiddleware::class])->group(function() {
-    Route::get('/iveta-adm', function() {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/iveta-adm', [App\Http\Controllers\Admin\AdminController::class, 'index'])->name('admin.dashboard');
 
     Route::get('articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('article/store', [ArticleController::class, 'store'])->name('article.store');
