@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <img class="about-me__img" src="{{asset('assets/images/about-me.jpg')}}" alt="Аз съм Ивета Василева">
+                <img class="about-me__img" src="{{asset('assets/images/about-me.jpg')}}" alt="Аз съм Ивета Костадинова">
             </div>
             <div class="col">
                 <div class="about-me__desc">

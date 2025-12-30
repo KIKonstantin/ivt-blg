@@ -2,7 +2,7 @@
     <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
         <div class="logo mb-4 md:mb-0">
             <a href="{{ route('articles.index') }}" class="font-display text-4xl text-stone-800 hover:text-stone-600 transition duration-300">
-                Ивета Василева
+                Ивета Костадинова
             </a>
             <span class="block text-xs font-serif tracking-widest text-stone-500 text-center md:text-left uppercase mt-1">Short Trips Around</span>
         </div>

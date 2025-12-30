@@ -16,7 +16,7 @@
         <div class="flex justify-center items-center text-stone-500 font-serif italic text-sm space-x-4">
             <span>{{ $article->created_at->format('d F Y') }}</span>
             <span>&bull;</span>
-            <span>Ивета Василева</span>
+            <span>Ивета Костадинова</span>
         </div>
     </div>
 
