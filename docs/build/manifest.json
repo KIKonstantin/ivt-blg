@@ -1,0 +1,30 @@
+{
+  "resources/js/app.js": {
+    "file": "assets/app-Xaw6OIO1.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/homepage.js": {
+    "file": "assets/homepage-n9mvaYfq.js",
+    "name": "homepage",
+    "src": "resources/js/homepage.js",
+    "isEntry": true
+  },
+  "resources/js/scroll.js": {
+    "file": "assets/scroll-UoP6IYvJ.js",
+    "name": "scroll",
+    "src": "resources/js/scroll.js",
+    "isEntry": true
+  },
+  "resources/styles/app.css": {
+    "file": "assets/app-CoHj9BDs.css",
+    "src": "resources/styles/app.css",
+    "isEntry": true
+  },
+  "resources/styles/pages/article.sass": {
+    "file": "assets/article-BW-1N-C3.css",
+    "src": "resources/styles/pages/article.sass",
+    "isEntry": true
+  }
+}

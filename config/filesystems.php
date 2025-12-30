@@ -57,6 +57,11 @@ return [
             'throw' => false,
         ],
 
+        'github_pages' => [
+            'driver' => 'local',
+            'root' => base_path('docs'),
+        ],
+
     ],
 
     /*
