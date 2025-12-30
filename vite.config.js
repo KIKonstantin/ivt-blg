@@ -14,4 +14,6 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    // Base URL for GitHub Pages subdirectory
+    base: '/ivt-blg/',
 });
