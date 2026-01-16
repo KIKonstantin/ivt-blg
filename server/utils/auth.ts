@@ -44,6 +44,17 @@ export const requireAdmin = async (event: H3Event) => {
   return user
 }
 
+export const requireUser = async (event: H3Event) => {
+  const user = await getSessionUser(event)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Authentication required'
+    })
+  }
+  return user
+}
+
 export const createSession = async (event: H3Event, userId: number) => {
   const token = crypto.randomUUID()
   const { rows } = await pool.query(

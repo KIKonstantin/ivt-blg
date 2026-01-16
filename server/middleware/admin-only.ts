@@ -10,6 +10,9 @@ export default defineEventHandler(async (event) => {
   if (!url.startsWith('/api/posts')) {
     return
   }
+  if (/^\/api\/posts\/\d+\/comments/.test(url)) {
+    return
+  }
 
   const { requireAdmin } = await import('../utils/auth')
   await requireAdmin(event)

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : ''
   const password = body?.password
-  const role = body?.role === 'admin' ? 'admin' : 'editor'
+  const requestedRole = body?.role === 'admin' ? 'admin' : 'editor'
 
   if (!email || !password) {
     throw createError({
@@ -35,12 +35,14 @@ export default defineEventHandler(async (event) => {
   const { rows: countRows } = await pool.query('SELECT COUNT(*)::int AS count FROM users')
   const totalUsers = countRows[0]?.count ?? 0
 
-  if (totalUsers > 0) {
-    await requireAdmin(event)
-  }
-
   const passwordHash = await hash(password, 10)
-  const userRole = totalUsers === 0 ? 'admin' : role
+  let userRole: 'admin' | 'editor' = 'editor'
+  if (totalUsers === 0) {
+    userRole = 'admin'
+  } else if (requestedRole === 'admin') {
+    await requireAdmin(event)
+    userRole = 'admin'
+  }
 
   const { rows } = await pool.query(
     'INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, role',
