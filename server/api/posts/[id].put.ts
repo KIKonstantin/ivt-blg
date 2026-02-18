@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const title = body?.title
   const content = body?.content
+  const image_url = body?.image_url
 
   if (!title || !content) {
     throw createError({
@@ -21,8 +22,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const { rows } = await pool.query(
-    'UPDATE posts SET title = $1, content = $2 WHERE id = $3 RETURNING *',
-    [title, content, id]
+    'UPDATE posts SET title = $1, content = $2, image_url = $3 WHERE id = $4 RETURNING *',
+    [title, content, image_url, id]
   )
 
   if (rows.length === 0) {

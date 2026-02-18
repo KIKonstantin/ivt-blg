@@ -232,7 +232,8 @@ onMounted(() => {
       <!-- Article Header -->
       <header class="article-header">
         <div class="article-hero-image" id="heroImage"
-          :style="{ backgroundImage: `url(https://picsum.photos/seed/${post.id}/1920/1080)` }"></div>
+          :style="{ backgroundImage: `url(${post.image_url || `https://picsum.photos/seed/${post.id}/1920/1080`})` }">
+        </div>
         <div class="article-hero-overlay"></div>
         <div class="article-hero-content">
           <div class="article-category">
@@ -253,23 +254,7 @@ onMounted(() => {
 
       <!-- Article Content -->
       <article class="article-content">
-        <div class="article-body">
-          <!-- Split content by double newline to create paragraphs -->
-          <template v-for="(text, idx) in post.content.split('\n\n')" :key="idx">
-            <p v-if="text.trim()">{{ text }}</p>
-
-            <!-- Dynamic Injection: Add a pull quote and image if it's a long post -->
-            <blockquote v-if="idx === 0 && post.content.length > 500" class="pull-quote">
-              "Nature does not hurry, yet everything is accomplished."
-              <cite>— Lao Tzu</cite>
-            </blockquote>
-
-            <figure v-if="idx === 2 && post.content.length > 800" class="inline-image">
-              <img :src="`https://picsum.photos/seed/${post.id + 1}/1200/800`" alt="Forest scene">
-              <figcaption class="inline-image-caption">The deep silence of the ancient woods.</figcaption>
-            </figure>
-          </template>
-        </div>
+        <div class="article-body rich-content" v-html="post.content"></div>
 
         <div class="share-section" id="shareSection">
           <span class="share-label">Share this story</span>
@@ -335,7 +320,7 @@ onMounted(() => {
         <div class="related-grid">
           <article v-for="p in relatedPosts" :key="p.id" class="related-card" @click="navigateTo(`/posts/${p.id}`)">
             <div class="related-image">
-              <img :src="`https://picsum.photos/seed/${p.id}/600/400`" :alt="p.title">
+              <img :src="p.image_url || `https://picsum.photos/seed/${p.id}/600/400`" :alt="p.title">
             </div>
             <h4 class="related-card-title">{{ p.title }}</h4>
             <div class="related-card-meta">Nature · {{ formatDate(p.created_at) }}</div>

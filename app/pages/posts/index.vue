@@ -48,7 +48,7 @@ onMounted(() => {
                 <article v-for="post in posts" :key="post.id" class="post-list-item"
                     @click="navigateTo(`/posts/${post.id}`)">
                     <div class="post-image-wrapper">
-                        <img :src="`https://picsum.photos/seed/${post.id}/800/600`" :alt="post.title">
+                        <img :src="post.image_url || `https://picsum.photos/seed/${post.id}/800/600`" :alt="post.title">
                         <div class="post-overlay-luxury">
                             <span>Read Story</span>
                         </div>
@@ -89,7 +89,7 @@ onMounted(() => {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 4px;
-    color: #D4A574;
+    color: var(--color-gold);
     font-weight: 700;
     margin-bottom: 16px;
 }
@@ -104,7 +104,7 @@ onMounted(() => {
 }
 
 .subtitle-premium {
-    color: #7D8B7A;
+    color: var(--color-sage);
     margin-top: 16px;
     font-size: 18px;
 }
@@ -148,12 +148,12 @@ onMounted(() => {
 }
 
 .post-overlay-luxury span {
-    color: #FFFFFF;
+    color: var(--color-white);
     text-transform: uppercase;
     letter-spacing: 2px;
     font-size: 13px;
     font-weight: 600;
-    border-bottom: 1px solid #D4A574;
+    border-bottom: 1px solid var(--color-gold);
     padding-bottom: 4px;
 }
 
@@ -169,7 +169,7 @@ onMounted(() => {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: #D4A574;
+    color: var(--color-gold);
     font-weight: 700;
     margin-bottom: 8px;
     display: block;
@@ -187,13 +187,13 @@ onMounted(() => {
     align-items: center;
     gap: 12px;
     font-size: 13px;
-    color: #7D8B7A;
+    color: var(--color-sage);
 }
 
 .dot {
     width: 4px;
     height: 4px;
-    background-color: #D4A574;
+    background-color: var(--color-gold);
     border-radius: 50%;
 }
 
@@ -202,7 +202,7 @@ onMounted(() => {
 .state-empty {
     padding: 100px;
     text-align: center;
-    color: #7D8B7A;
+    color: var(--color-sage);
     font-size: 18px;
     text-transform: uppercase;
     letter-spacing: 1px;

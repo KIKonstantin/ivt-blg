@@ -240,7 +240,8 @@ const handleNewsletterSubmit = () => {
     <!-- Featured Story -->
     <section class="featured" id="featured">
       <div class="featured-image" id="featuredImage">
-        <img src="https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80" alt="Misty forest trail">
+        <img :src="featuredPost?.image_url || 'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80'"
+          :alt="featuredPost?.title || 'Featured Story'">
       </div>
       <div v-if="featuredPost" class="featured-content" id="featuredContent">
         <div class="section-label"><span>Featured Story</span></div>
@@ -277,7 +278,7 @@ const handleNewsletterSubmit = () => {
       <div v-else-if="recentPosts && recentPosts.length" class="stories-grid">
         <article v-for="post in recentPosts" :key="post.id" class="story-card" @click="navigateTo(`/posts/${post.id}`)">
           <div class="story-image">
-            <img :src="`https://picsum.photos/seed/${post.id}/800/600`" :alt="post.title">
+            <img :src="post.image_url || `https://picsum.photos/seed/${post.id}/800/600`" :alt="post.title">
           </div>
           <div class="story-category">Forest Travel</div>
           <h4 class="story-title">{{ post.title }}</h4>

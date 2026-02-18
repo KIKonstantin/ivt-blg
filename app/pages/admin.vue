@@ -1,6 +1,10 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 import gsap from 'gsap'
+import { Editor, EditorContent } from '@tiptap/vue-3'
+import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
 
 definePageMeta({
   middleware: 'admin'
@@ -12,7 +16,11 @@ const router = useRouter()
 
 const formTitle = ref('')
 const formContent = ref('')
+const formImageUrl = ref('')
+const isUploading = ref(false)
 const editingId = ref(null)
+
+const editor = ref(null)
 
 const isEditing = computed(() => editingId.value !== null)
 const isAdmin = computed(() => auth.value?.isAdmin === true)
@@ -26,29 +34,33 @@ watchEffect(() => {
 const resetForm = () => {
   formTitle.value = ''
   formContent.value = ''
+  formImageUrl.value = ''
+  isUploading.value = false
   editingId.value = null
+  editor.value.commands.setContent('')
 }
 
 const submit = async () => {
-  if (!formTitle.value.trim() || !formContent.value.trim()) {
+  const content = editor.value.getHTML()
+  if (!formTitle.value.trim() || !content.trim() || content === '<p></p>') {
     return
+  }
+
+  const payload = {
+    title: formTitle.value,
+    content: content,
+    image_url: formImageUrl.value
   }
 
   if (isEditing.value) {
     await $fetch(`/api/posts/${editingId.value}`, {
       method: 'PUT',
-      body: {
-        title: formTitle.value,
-        content: formContent.value
-      }
+      body: payload
     })
   } else {
     await $fetch('/api/posts', {
       method: 'POST',
-      body: {
-        title: formTitle.value,
-        content: formContent.value
-      }
+      body: payload
     })
   }
 
@@ -56,10 +68,34 @@ const submit = async () => {
   resetForm()
 }
 
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  isUploading.value = true
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const res = await $fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+    formImageUrl.value = res.url
+  } catch (err) {
+    console.error('Upload error:', err)
+    alert('Failed to upload image. Please try again.')
+  } finally {
+    isUploading.value = false
+  }
+}
+
 const startEdit = (post) => {
   editingId.value = post.id
   formTitle.value = post.title
   formContent.value = post.content
+  formImageUrl.value = post.image_url || ''
+  editor.value.commands.setContent(post.content)
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -88,6 +124,20 @@ const formatDate = (value) => {
 }
 
 onMounted(() => {
+  editor.value = new Editor({
+    content: formContent.value,
+    extensions: [
+      StarterKit,
+      Image.configure({
+        allowBase64: true,
+      }),
+      Link,
+    ],
+    onUpdate: ({ editor }) => {
+      formContent.value = editor.getHTML()
+    },
+  })
+
   gsap.from(".admin-header", {
     opacity: 0,
     y: -20,
@@ -103,6 +153,34 @@ onMounted(() => {
     ease: "power3.out"
   })
 })
+
+onBeforeUnmount(() => {
+  editor.value.destroy()
+})
+
+const addEditorImage = () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.onchange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await $fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      editor.value.chain().focus().setImage({ src: res.url }).run()
+    } catch (err) {
+      alert('Failed to upload image')
+    }
+  }
+  input.click()
+}
 </script>
 
 <template>
@@ -130,8 +208,37 @@ onMounted(() => {
             </div>
 
             <div class="field-premium">
-              <label>Body Content</label>
-              <textarea v-model="formContent" placeholder="Write your story here..." required></textarea>
+              <label>Body Content (Rich Text)</label>
+              <div class="tiptap-container">
+                <div v-if="editor" class="editor-toolbar">
+                  <button @click.prevent="editor.chain().focus().toggleBold().run()"
+                    :class="{ 'is-active': editor.isActive('bold') }">B</button>
+                  <button @click.prevent="editor.chain().focus().toggleItalic().run()"
+                    :class="{ 'is-active': editor.isActive('italic') }">I</button>
+                  <button @click.prevent="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+                    :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">H2</button>
+                  <button @click.prevent="editor.chain().focus().toggleBulletList().run()"
+                    :class="{ 'is-active': editor.isActive('bulletList') }">List</button>
+                  <button @click.prevent="addEditorImage">Img</button>
+                </div>
+                <editor-content :editor="editor" class="tiptap-editor" />
+              </div>
+            </div>
+
+            <div class="field-premium">
+              <label>Hero Image</label>
+              <div class="upload-area">
+                <input type="file" @change="handleFileUpload" accept="image/*" id="fileUpload" class="hidden-input">
+                <label for="fileUpload" class="upload-trigger">
+                  <span v-if="isUploading">Uploading...</span>
+                  <span v-else-if="formImageUrl">Change Image</span>
+                  <span v-else>Select Hero Image</span>
+                </label>
+                <div v-if="formImageUrl" class="image-preview">
+                  <img :src="formImageUrl" alt="Preview">
+                  <button type="button" @click="formImageUrl = ''" class="remove-preview">×</button>
+                </div>
+              </div>
             </div>
 
             <div class="form-actions-premium">
@@ -277,10 +384,120 @@ onMounted(() => {
   border-color: var(--color-midnight);
 }
 
-.field-premium textarea {
+.upload-area {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border: 1px dashed rgba(15, 26, 15, 0.1);
+  background: rgba(15, 26, 15, 0.02);
+  text-align: center;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.upload-trigger {
+  cursor: pointer;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--color-gold);
+  padding: 12px;
+  transition: opacity 0.3s;
+}
+
+.upload-trigger:hover {
+  opacity: 0.7;
+}
+
+.image-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-preview {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--color-midnight);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.tiptap-container {
+  border: 1px solid rgba(15, 26, 15, 0.1);
+  background: var(--color-white);
+  min-height: 400px;
+}
+
+.editor-toolbar {
+  padding: 8px;
+  border-bottom: 1px solid rgba(15, 26, 15, 0.1);
+  display: flex;
+  gap: 8px;
+  background: rgba(15, 26, 15, 0.02);
+}
+
+.editor-toolbar button {
+  background: white;
+  border: 1px solid rgba(15, 26, 15, 0.1);
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-midnight);
+}
+
+.editor-toolbar button.is-active {
+  background: var(--color-gold);
+  color: white;
+  border-color: var(--color-gold);
+}
+
+.tiptap-editor {
+  padding: 24px;
+}
+
+:deep(.tiptap) {
+  outline: none;
   min-height: 300px;
-  resize: none;
   line-height: 1.6;
+}
+
+:deep(.tiptap p) {
+  margin-bottom: 1em;
+}
+
+:deep(.tiptap img) {
+  max-width: 100%;
+  height: auto;
+  margin: 24px 0;
+  display: block;
+}
+
+:deep(.tiptap h2) {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 1.5em 0 0.5em;
 }
 
 .form-actions-premium {
