@@ -1,4 +1,4 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// Nat're — Configuration
 export default defineNuxtConfig({
   modules: [
     '@nuxt/ui'
@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  css: ['~/assets/sass/main.sass'],
+  css: ['~/assets/sass/main.scss'],
 
   compatibilityDate: '2025-01-15',
 
