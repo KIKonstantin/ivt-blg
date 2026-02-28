@@ -10,11 +10,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const { rows } = await pool.query(
-    `SELECT comments.id, comments.content, comments.created_at, users.email
+    `SELECT id, content, author_name, created_at
      FROM comments
-     JOIN users ON users.id = comments.user_id
-     WHERE comments.post_id = $1
-     ORDER BY comments.created_at ASC`,
+     WHERE post_id = $1 AND is_approved = TRUE
+     ORDER BY created_at DESC`,
     [id]
   )
 

@@ -18,7 +18,7 @@ const featuredPost = computed(() => posts.value?.[0])
 const recentPosts = computed(() => posts.value?.slice(1))
 
 useHead({
-  title: "NAT'RE — Forest Travel Blog",
+  title: "КОРЕНИ — Горски пътеписи",
   link: [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
@@ -228,12 +228,12 @@ const handleNewsletterSubmit = () => {
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <h1 class="hero-title">
-          <span>N</span><span>a</span><span>t</span><span>'</span><span>r</span><span>e</span>
+          <span>К</span><span>О</span><span>Р</span><span>Е</span><span>Н</span><span>И</span>
         </h1>
-        <p class="hero-subtitle">Forest Travel Journal</p>
+        <p class="hero-subtitle">Горски дневник</p>
       </div>
       <div class="scroll-indicator" @click="scrollToFeatured">
-        Scroll
+        Надолу
       </div>
     </section>
 
@@ -244,33 +244,33 @@ const handleNewsletterSubmit = () => {
           :alt="featuredPost?.title || 'Featured Story'">
       </div>
       <div v-if="featuredPost" class="featured-content" id="featuredContent">
-        <div class="section-label"><span>Featured Story</span></div>
+        <div class="section-label"><span>Акцент</span></div>
         <h2 class="featured-title">
           <span>{{ featuredPost.title.split(' ').slice(0, 3).join(' ') }}</span><br>
           <span>{{ featuredPost.title.split(' ').slice(3, 6).join(' ') }}</span><br>
           <span>{{ featuredPost.title.split(' ').slice(6).join(' ') }}</span>
         </h2>
+        <div v-if="featuredPost.has_gallery" class="gallery-badge-featured">Включва галерия</div>
         <p class="featured-excerpt" id="featuredExcerpt">
-          {{ featuredPost.content.substring(0, 180) }}...
+          {{ featuredPost.excerpt || featuredPost.content.replace(/<[^>]*>/g, '').substring(0, 180) + '...' }}
         </p>
-        <NuxtLink :to="`/posts/${featuredPost.id}`" class="read-more" id="featuredLink">Read Article</NuxtLink>
+        <NuxtLink :to="`/posts/${featuredPost.id}`" class="read-more" id="featuredLink">Прочети историята</NuxtLink>
       </div>
       <div v-else class="featured-content" id="featuredContent">
-        <div class="section-label"><span>Featured Story</span></div>
-        <h2 class="featured-title"><span>The Silent Trails</span><br><span>of the
-            Pacific</span><br><span>Northwest</span></h2>
+        <div class="section-label"><span>Акцент</span></div>
+        <h2 class="featured-title"><span>Тихите пътеки</span><br><span>на древната</span><br><span>гора</span></h2>
         <p class="featured-excerpt" id="featuredExcerpt">
-          A week spent wandering through old-growth forests where sunlight filters through ancient canopies...
+          Седмица, прекарана в скитане из вековни гори, където слънчевата светлина се филтрира през антични корони...
         </p>
-        <a href="#" class="read-more" id="featuredLink">Read Article</a>
+        <a href="#" class="read-more" id="featuredLink">Прочети историята</a>
       </div>
     </section>
 
     <!-- Recent Stories -->
     <section class="stories" id="stories">
       <div class="stories-header">
-        <h3 class="stories-title">Recent Stories</h3>
-        <NuxtLink to="/posts" class="view-all" id="viewAll">View All →</NuxtLink>
+        <h3 class="stories-title">Последни истории</h3>
+        <NuxtLink to="/posts" class="view-all" id="viewAll">Виж всички →</NuxtLink>
       </div>
 
       <div v-if="pending" class="state">Зареждаме...</div>
@@ -280,9 +280,12 @@ const handleNewsletterSubmit = () => {
           <div class="story-image">
             <img :src="post.image_url || `https://picsum.photos/seed/${post.id}/800/600`" :alt="post.title">
           </div>
-          <div class="story-category">Forest Travel</div>
+          <div class="story-category">
+            <span v-if="post.has_gallery" class="gallery-icon">📸</span>
+            {{ post.has_gallery ? 'Галерия' : 'Пътешествия' }}
+          </div>
           <h4 class="story-title">{{ post.title }}</h4>
-          <div class="story-meta">{{ formatDate(post.created_at) }} · 8 min read</div>
+          <div class="story-meta">{{ formatDate(post.created_at) }} · 8 мин. четене</div>
         </article>
       </div>
       <div v-else class="stories-grid">
@@ -308,10 +311,10 @@ const handleNewsletterSubmit = () => {
 
     <!-- Newsletter -->
     <section class="newsletter" id="newsletter">
-      <h3 class="newsletter-title"><span>Join the Journey</span></h3>
-      <p class="newsletter-text" id="newsletterText">Weekly stories from the forest, delivered to your inbox.</p>
+      <h3 class="newsletter-title"><span>Присъедини се</span></h3>
+      <p class="newsletter-text" id="newsletterText">Седмични истории от гората, директно в твоята поща.</p>
       <form class="newsletter-form" id="newsletterForm" @submit.prevent="handleNewsletterSubmit">
-        <input type="email" class="newsletter-input" placeholder="Your email address" required>
+        <input type="email" class="newsletter-input" placeholder="Твоят имейл адрес" required>
         <button type="submit" class="newsletter-button">→</button>
       </form>
     </section>
@@ -319,7 +322,7 @@ const handleNewsletterSubmit = () => {
     <!-- Footer -->
     <footer id="footer">
       <div class="footer-content">
-        <div>© 2024 Nat're</div>
+        <div>© 2024 КОРЕНИ</div>
         <div class="footer-links">
           <a href="#">Instagram</a>
           <a href="#">Pinterest</a>
@@ -595,6 +598,22 @@ const handleNewsletterSubmit = () => {
 .story-card:hover .story-image img {
   transform: scale(1.02);
   filter: saturate(0.9);
+}
+
+.gallery-badge-featured {
+  display: inline-block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-white);
+  background-color: var(--color-gold);
+  padding: 4px 12px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.gallery-icon {
+  margin-right: 6px;
 }
 
 .story-category {

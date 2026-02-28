@@ -12,23 +12,21 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   const content = typeof body?.content === 'string' ? body.content.trim() : ''
-  if (!content) {
+  const author_name = typeof body?.author_name === 'string' ? body.author_name.trim() : ''
+
+  if (!content || !author_name) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Content is required'
+      statusMessage: 'Content and name are required'
     })
   }
 
-  const user = await requireUser(event)
   const { rows } = await pool.query(
-    `INSERT INTO comments (post_id, user_id, content)
-     VALUES ($1, $2, $3)
-     RETURNING id, content, created_at`,
-    [id, user.id, content]
+    `INSERT INTO comments (post_id, author_name, content, is_approved)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, content, author_name, created_at`,
+    [id, author_name, content, false]
   )
 
-  return {
-    ...rows[0],
-    email: user.email
-  }
+  return rows[0]
 })

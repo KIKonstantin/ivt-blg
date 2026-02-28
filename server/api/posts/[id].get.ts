@@ -17,5 +17,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return rows[0]
+  const post = rows[0]
+  
+  // Fetch gallery images
+  const { rows: galleryRows } = await pool.query(
+    'SELECT image_url FROM post_galleries WHERE post_id = $1 ORDER BY created_at ASC',
+    [id]
+  )
+  post.gallery = galleryRows.map(r => r.image_url)
+
+  return post
 })

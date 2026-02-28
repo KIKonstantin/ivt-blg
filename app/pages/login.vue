@@ -11,14 +11,18 @@ const password = ref('')
 const authError = ref('')
 const isLoggedIn = computed(() => Boolean(auth.value?.user))
 
+useHead({
+  title: "Вход — КОРЕНИ",
+})
+
 const login = async () => {
   authError.value = ''
   if (!email.value.trim()) {
-    authError.value = 'Please enter your email.'
+    authError.value = 'Моля, въведете вашия имейл.'
     return
   }
   if (!password.value.trim()) {
-    authError.value = 'Please enter your password.'
+    authError.value = 'Моля, въведете вашата парола.'
     return
   }
 
@@ -34,7 +38,7 @@ const login = async () => {
     const nextPath = typeof route.query.next === 'string' ? route.query.next : '/'
     await router.push(nextPath)
   } catch (err) {
-    authError.value = 'Invalid login credentials.'
+    authError.value = 'Невалидни данни за вход.'
   }
 }
 
@@ -53,30 +57,30 @@ onMounted(() => {
     <div class="auth-container">
       <div class="auth-luxury-card">
         <header class="auth-header">
-          <span class="auth-label">Authentication</span>
-          <h1 class="auth-title">Welcome</h1>
-          <p class="auth-subtitle">Continue your journey through the forest.</p>
+          <span class="auth-label">Вход</span>
+          <h1 class="auth-title">Добре дошли</h1>
+          <p class="auth-subtitle">Продължете пътешествието си през гората.</p>
         </header>
 
         <div v-if="isLoggedIn" class="already-logged">
-          <p>You are already signed in as <strong>{{ auth.user.email }}</strong></p>
-          <NuxtLink to="/" class="btn-luxury primary">Back to Stories</NuxtLink>
+          <p>Вече сте влезли като <strong>{{ auth.user.email }}</strong></p>
+          <NuxtLink to="/" class="btn-luxury primary">Назад към историите</NuxtLink>
         </div>
 
         <form v-else class="luxury-form-auth" @submit.prevent="login">
           <div class="input-group-luxury">
-            <label>Email Address</label>
+            <label>Имейл адрес</label>
             <input type="email" v-model="email" placeholder="explorer@forest.com" required>
           </div>
 
           <div class="input-group-luxury">
-            <label>Password</label>
+            <label>Парола</label>
             <input type="password" v-model="password" placeholder="••••••••" required>
           </div>
 
           <div class="auth-actions-luxury">
-            <button type="submit" class="btn-luxury primary">Sign In</button>
-            <NuxtLink to="/register" class="link-luxury">Create Account</NuxtLink>
+            <button type="submit" class="btn-luxury primary">Вход</button>
+            <NuxtLink to="/register" class="link-luxury">Създай профил</NuxtLink>
           </div>
 
           <p v-if="authError" class="auth-error-msg">{{ authError }}</p>

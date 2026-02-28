@@ -17,6 +17,7 @@ const {
 
 // Fetch all posts for "Related Stories"
 const { data: allPosts } = await useFetch('/api/posts')
+const { data: author } = await useFetch('/api/author')
 const relatedPosts = computed(() => {
   if (!allPosts.value) return []
   return allPosts.value
@@ -24,14 +25,107 @@ const relatedPosts = computed(() => {
     .slice(0, 3)
 })
 
+// Gallery Lightbox State
+const lightboxActive = ref(false)
+const currentImageIdx = ref(0)
+const isZoomed = ref(false)
+const lightboxImg = ref(null)
+
+const openLightbox = (idx) => {
+  currentImageIdx.value = idx
+  lightboxActive.value = true
+  isZoomed.value = false
+  document.body.style.overflow = 'hidden'
+
+  // GSAP animation for entry
+  nextTick(() => {
+    gsap.fromTo(".premium-lightbox",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5, ease: "power2.out" }
+    )
+    gsap.fromTo(".lightbox-main-image",
+      { scale: 0.9, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.6, delay: 0.1, ease: "back.out(1.2)" }
+    )
+  })
+}
+
+const closeLightbox = () => {
+  gsap.to(".premium-lightbox", {
+    opacity: 0,
+    duration: 0.4,
+    ease: "power2.inOut",
+    onComplete: () => {
+      lightboxActive.value = false
+      document.body.style.overflow = ''
+    }
+  })
+}
+
+const nextImage = () => {
+  if (post.value?.gallery) {
+    gsap.to(".lightbox-main-image", {
+      x: -50,
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.in",
+      onComplete: () => {
+        currentImageIdx.value = (currentImageIdx.value + 1) % post.value.gallery.length
+        isZoomed.value = false
+        gsap.fromTo(".lightbox-main-image",
+          { x: 50, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+        )
+      }
+    })
+  }
+}
+
+const prevImage = () => {
+  if (post.value?.gallery) {
+    gsap.to(".lightbox-main-image", {
+      x: 50,
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.in",
+      onComplete: () => {
+        currentImageIdx.value = (currentImageIdx.value - 1 + post.value.gallery.length) % post.value.gallery.length
+        isZoomed.value = false
+        gsap.fromTo(".lightbox-main-image",
+          { x: -50, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+        )
+      }
+    })
+  }
+}
+
+const toggleZoom = () => {
+  isZoomed.value = !isZoomed.value
+}
+
+// Handle keys
+onMounted(() => {
+  const handleKeydown = (e) => {
+    if (!lightboxActive.value) return
+    if (e.key === 'Escape') closeLightbox()
+    if (e.key === 'ArrowRight') nextImage()
+    if (e.key === 'ArrowLeft') prevImage()
+  }
+  window.addEventListener('keydown', handleKeydown)
+  onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+})
+
+const authorName = ref('')
 const commentContent = ref('')
 const commentError = ref('')
 const commentPending = ref(false)
+const commentSuccess = ref(false)
 const isLoggedIn = computed(() => Boolean(auth.value?.user))
 
 const formatDate = (value) => {
   if (!value) return ''
-  return new Date(value).toLocaleDateString('en-US', {
+  return new Date(value).toLocaleDateString('bg-BG', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -40,7 +134,7 @@ const formatDate = (value) => {
 
 const formatDateTime = (value) => {
   if (!value) return ''
-  return new Date(value).toLocaleString('en-US', {
+  return new Date(value).toLocaleString('bg-BG', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -50,9 +144,12 @@ const formatDateTime = (value) => {
 
 const submitComment = async () => {
   commentError.value = ''
+  commentSuccess.value = false
   const content = commentContent.value.trim()
-  if (!content) {
-    commentError.value = 'Please enter a comment.'
+  const name = authorName.value.trim()
+
+  if (!content || !name) {
+    commentError.value = 'Моля, въведи име и коментар.'
     return
   }
 
@@ -60,12 +157,17 @@ const submitComment = async () => {
   try {
     await $fetch(`/api/posts/${route.params.id}/comments`, {
       method: 'POST',
-      body: { content }
+      body: {
+        content,
+        author_name: name
+      }
     })
     commentContent.value = ''
-    await refreshComments()
+    authorName.value = ''
+    commentSuccess.value = true
+    // refreshComments() // Don't refresh yet as it's not approved
   } catch (err) {
-    commentError.value = 'Failed to post comment.'
+    commentError.value = 'Грешка при изпращане на коментара.'
   } finally {
     commentPending.value = false
   }
@@ -83,7 +185,7 @@ const titleChunks = computed(() => {
 })
 
 useHead({
-  title: post.value ? `${post.value.title} — NAT'RE` : "NAT'RE Forest Blog",
+  title: post.value ? `${post.value.title} — КОРЕНИ` : "КОРЕНИ",
   link: [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
@@ -160,7 +262,7 @@ onMounted(() => {
       });
 
       // Staggered reveal for article elements
-      gsap.utils.toArray(".article-body p, .article-body h2, .article-body h3, .pull-quote, .inline-image, .comment-card").forEach((element) => {
+      gsap.utils.toArray(".article-body p, .article-body h2, .article-body h3, .pull-quote, .inline-image, .comment-card, .gallery-item-luxury").forEach((element) => {
         gsap.to(element, {
           opacity: 1,
           y: 0,
@@ -225,8 +327,8 @@ onMounted(() => {
     <!-- Reading Progress -->
     <div class="progress-bar" id="progressBar"></div>
 
-    <p v-if="pending" class="state-loading">Loading story...</p>
-    <p v-else-if="error" class="state-error">Story not found.</p>
+    <p v-if="pending" class="state-loading">Зареждаме историята...</p>
+    <p v-else-if="error" class="state-error">Историята не е намерена.</p>
 
     <div v-else>
       <!-- Article Header -->
@@ -237,7 +339,7 @@ onMounted(() => {
         <div class="article-hero-overlay"></div>
         <div class="article-hero-content">
           <div class="article-category">
-            <span>Nature Journal</span>
+            <span>Природа</span>
           </div>
           <h1 class="article-title">
             <div v-for="(line, idx) in titleChunks" :key="idx" class="line">
@@ -245,9 +347,9 @@ onMounted(() => {
             </div>
           </h1>
           <div class="article-meta">
-            <span>By Forest Team</span>
+            <span>От екипа</span>
             <span>{{ formatDate(post.created_at) }}</span>
-            <span>8 min read</span>
+            <span>8 мин. четене</span>
           </div>
         </div>
       </header>
@@ -256,56 +358,96 @@ onMounted(() => {
       <article class="article-content">
         <div class="article-body rich-content" v-html="post.content"></div>
 
+        <!-- Article Gallery -->
+        <section v-if="post.gallery && post.gallery.length" class="article-gallery-section">
+          <header class="section-header-minimal">
+            <span class="label-gold">Визуално пътешествие</span>
+            <h2 class="title-minimal">Галерия</h2>
+          </header>
+          <div class="gallery-grid">
+            <div v-for="(img, idx) in post.gallery" :key="idx" class="gallery-item-luxury" @click="openLightbox(idx)">
+              <img :src="img" :alt="`Gallery image ${idx + 1}`" class="reveal-on-scroll">
+            </div>
+          </div>
+        </section>
+
+        <!-- Premium Lightbox -->
+        <Transition name="lightbox">
+          <div v-if="lightboxActive" class="premium-lightbox" @click.self="closeLightbox">
+            <div class="lightbox-overlay"></div>
+
+            <div class="lightbox-content" :class="{ 'zoomed': isZoomed }">
+              <img :src="post.gallery[currentImageIdx]" class="lightbox-main-image" @click="toggleZoom"
+                ref="lightboxImg">
+            </div>
+
+            <div class="lightbox-controls">
+              <button class="control-btn close" @click="closeLightbox">
+                <span class="icon">×</span>
+                <span class="label">Затвори</span>
+              </button>
+
+              <div class="nav-controls">
+                <button class="control-btn prev" @click="prevImage">←</button>
+                <div class="image-counter">{{ currentImageIdx + 1 }} / {{ post.gallery.length }}</div>
+                <button class="control-btn next" @click="nextImage">→</button>
+              </div>
+
+              <button class="control-btn zoom" @click="toggleZoom">
+                <span class="icon">{{ isZoomed ? '⊖' : '⊕' }}</span>
+                <span class="label">{{ isZoomed ? 'Намали' : 'Увеличи' }}</span>
+              </button>
+            </div>
+          </div>
+        </Transition>
+
         <div class="share-section" id="shareSection">
-          <span class="share-label">Share this story</span>
+          <span class="share-label">Сподели тази история</span>
           <div class="share-links">
             <a href="#">Twitter</a>
             <a href="#">Facebook</a>
-            <a href="#">Copy Link</a>
+            <a href="#">Копирай линк</a>
           </div>
         </div>
 
         <div class="author-box" id="authorBox">
           <div class="author-avatar">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" alt="Sarah Mitchell">
+            <img :src="author?.image_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80'"
+              :alt="author?.name">
           </div>
           <div class="author-info">
-            <h4>Forest Team</h4>
-            <p>Dedicated to exploring the hidden corners of the natural world and sharing the wisdom found in the quiet
-              places
-              between the trees.</p>
+            <h4>{{ author?.name || 'Ивета Костадинова' }}</h4>
+            <p>{{ author?.description || 'Пътешественик и разказвач на истории, посветена на изследването на скритите кътчета на природата.' }}</p>
           </div>
         </div>
 
         <!-- Comments Section (Themed) -->
         <section class="comments-section">
           <div class="comments-header">
-            <h3>Reflections</h3>
-            <span class="comments-count">{{ comments?.length ?? 0 }} thoughts shared</span>
+            <h3>Мисли</h3>
+            <span class="comments-count">{{ comments?.length ?? 0 }} споделени мисли</span>
           </div>
 
           <div class="comments-list">
             <article v-for="comment in comments" :key="comment.id" class="comment-card">
               <div class="comment-meta">
-                <strong>{{ comment.email.split('@')[0] }}</strong>
+                <strong>{{ comment.author_name }}</strong>
                 <span>{{ formatDateTime(comment.created_at) }}</span>
               </div>
               <p>{{ comment.content }}</p>
             </article>
           </div>
 
-          <div v-if="!isLoggedIn" class="auth-box-comments">
-            <p>Join the conversation to share your thoughts.</p>
-            <div class="auth-buttons">
-              <NuxtLink to="/login" class="link-btn">Login</NuxtLink>
-              <NuxtLink to="/register" class="link-btn primary">Register</NuxtLink>
+          <form class="comment-form-luxury" @submit.prevent="submitComment">
+            <div v-if="commentSuccess" class="success-msg-luxury">
+              Твоята мисъл беше изпратена за модерация. Тя ще се появи веднага след одобрение.
             </div>
-          </div>
-
-          <form v-else class="comment-form-luxury" @submit.prevent="submitComment">
-            <textarea v-model="commentContent" placeholder="What did this story evoke in you?" required></textarea>
+            <div class="form-row-luxury">
+              <input v-model="authorName" type="text" placeholder="Твоето име" required>
+            </div>
+            <textarea v-model="commentContent" placeholder="Какво събуди в теб тази история?" required></textarea>
             <button type="submit" :disabled="commentPending">
-              {{ commentPending ? 'Sending...' : 'Post Thought' }}
+              {{ commentPending ? 'Изпращане...' : 'Сподели мисъл' }}
             </button>
             <p v-if="commentError" class="error-msg">{{ commentError }}</p>
           </form>
@@ -315,7 +457,7 @@ onMounted(() => {
       <!-- Related Stories -->
       <section v-if="relatedPosts.length" class="related">
         <div class="related-header">
-          <h3 class="related-title">More Stories</h3>
+          <h3 class="related-title">Още истории</h3>
         </div>
         <div class="related-grid">
           <article v-for="p in relatedPosts" :key="p.id" class="related-card" @click="navigateTo(`/posts/${p.id}`)">
@@ -323,7 +465,7 @@ onMounted(() => {
               <img :src="p.image_url || `https://picsum.photos/seed/${p.id}/600/400`" :alt="p.title">
             </div>
             <h4 class="related-card-title">{{ p.title }}</h4>
-            <div class="related-card-meta">Nature · {{ formatDate(p.created_at) }}</div>
+            <div class="related-card-meta">Природа · {{ formatDate(p.created_at) }}</div>
           </article>
         </div>
       </section>
@@ -507,6 +649,65 @@ onMounted(() => {
   letter-spacing: 1px;
 }
 
+/* Gallery Section */
+.article-gallery-section {
+  margin-top: 120px;
+  padding-top: 80px;
+  border-top: 1px solid rgba(15, 26, 15, 0.05);
+}
+
+.section-header-minimal {
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.label-gold {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-gold);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.title-minimal {
+  font-size: 32px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.gallery-item-luxury {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.gallery-item-luxury img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-item-luxury:hover img {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Share */
 .share-section {
   margin-top: 80px;
@@ -523,6 +724,201 @@ onMounted(() => {
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--color-sage);
+}
+
+/* Premium Lightbox */
+.premium-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.lightbox-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 26, 15, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.lightbox-content {
+  position: relative;
+  z-index: 2001;
+  width: 90%;
+  height: 85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lightbox-content.zoomed {
+  width: 100%;
+  height: 100%;
+}
+
+.lightbox-main-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zoomed .lightbox-main-image {
+  transform: scale(1.5);
+  cursor: zoom-out;
+}
+
+.lightbox-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2002;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+}
+
+.lightbox-controls button {
+  pointer-events: auto;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+
+.control-btn:hover {
+  opacity: 1;
+  color: var(--color-gold);
+}
+
+.control-btn .icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.nav-controls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 40px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.nav-controls button {
+  pointer-events: auto;
+  font-size: 32px;
+}
+
+.image-counter {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  letter-spacing: 4px;
+  font-weight: 300;
+  pointer-events: auto;
+}
+
+.lightbox-controls .close {
+  align-self: flex-end;
+}
+
+.lightbox-controls .zoom {
+  align-self: flex-end;
+}
+
+/* Transitions */
+.lightbox-enter-active,
+.lightbox-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.lightbox-enter-from,
+.lightbox-leave-to {
+  opacity: 0;
+}
+
+.success-msg-luxury {
+  background: rgba(184, 158, 101, 0.1);
+  color: var(--color-gold);
+  padding: 16px 24px;
+  margin-bottom: 32px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  border-left: 2px solid var(--color-gold);
+}
+
+.form-row-luxury {
+  margin-bottom: 24px;
+}
+
+.comment-form-luxury input[type="text"] {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(15, 26, 15, 0.1);
+  padding: 12px 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--color-midnight);
+  transition: border-color 0.3s;
+}
+
+.comment-form-luxury input[type="text"]:focus {
+  outline: none;
+  border-bottom-color: var(--color-gold);
+}
+
+.comment-form-luxury textarea {
+  width: 100%;
+  height: 120px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(15, 26, 15, 0.1);
+  padding: 12px 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--color-midnight);
+  resize: none;
+  margin-bottom: 32px;
+  transition: border-color 0.3s;
+}
+
+.comment-form-luxury textarea:focus {
+  outline: none;
+  border-bottom-color: var(--color-gold);
 }
 
 .share-links {

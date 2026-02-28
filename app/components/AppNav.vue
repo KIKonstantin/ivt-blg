@@ -41,15 +41,13 @@ const logout = async () => {
   }">
     <div class="nav-container-premium">
       <div class="nav-left">
-        <NuxtLink v-if="isArticle" to="/posts" class="back-link">Back to Stories</NuxtLink>
-        <NuxtLink to="/" class="logo">Nat're</NuxtLink>
+        <NuxtLink v-if="isArticle" to="/posts" class="back-link">Назад към историите</NuxtLink>
+        <NuxtLink to="/" class="logo">КОРЕНИ</NuxtLink>
       </div>
 
       <div class="nav-links">
-        <NuxtLink to="/posts" class="nav-link-premium">Stories</NuxtLink>
-        <NuxtLink to="/admin" class="nav-link-premium">Admin</NuxtLink>
-        <NuxtLink v-if="!isLoggedIn" to="/login" class="nav-link-premium">Login</NuxtLink>
-        <button v-else class="logout-btn-minimal" @click="logout">Logout</button>
+        <NuxtLink to="/posts" class="nav-link-premium">Истории</NuxtLink>
+        <button v-if="isLoggedIn" class="logout-btn-minimal" @click="logout">Изход</button>
       </div>
 
       <div class="menu-icon">

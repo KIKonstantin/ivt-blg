@@ -2,11 +2,20 @@
 import { onMounted } from 'vue'
 import gsap from 'gsap'
 
-const { data: posts, pending, error } = await useFetch('/api/posts')
+const currentSort = ref('newest')
+
+const { data: posts, pending, error, refresh } = await useFetch('/api/posts', {
+    query: { sort: currentSort }
+})
+
+const updateSort = (val) => {
+    currentSort.value = val
+    refresh()
+}
 
 const formatDate = (value) => {
     if (!value) return ''
-    return new Date(value).toLocaleDateString('en-US', {
+    return new Date(value).toLocaleDateString('bg-BG', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
@@ -36,13 +45,23 @@ onMounted(() => {
     <div class="posts-archive">
         <div class="container-premium">
             <header class="list-header">
-                <span class="label-premium">The Archive</span>
-                <h1 class="title-premium">All Stories</h1>
-                <p class="subtitle-premium">A collection of our journeys through the wilderness.</p>
+                <span class="label-premium">Архив</span>
+                <h1 class="title-premium">Всички истории</h1>
+                <div class="sorting-controls">
+                    <div class="sort-dropdown">
+                        <select v-model="currentSort" @change="updateSort(currentSort)">
+                            <option value="newest">Най-нови</option>
+                            <option value="oldest">Най-стари</option>
+                            <option value="most_commented">Най-коментирани</option>
+                            <option value="popular">Популярни</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="subtitle-premium">Колекция от нашите пътувания из дивата природа.</p>
             </header>
 
-            <div v-if="pending" class="state-loading">Gathering stories...</div>
-            <div v-else-if="error" class="state-error">The trail is blocked. (Error loading posts)</div>
+            <div v-if="pending" class="state-loading">Събираме истории...</div>
+            <div v-else-if="error" class="state-error">Пътеката е блокирана. (Грешка при зареждане)</div>
 
             <div v-else class="post-grid-luxury">
                 <article v-for="post in posts" :key="post.id" class="post-list-item"
@@ -50,16 +69,16 @@ onMounted(() => {
                     <div class="post-image-wrapper">
                         <img :src="post.image_url || `https://picsum.photos/seed/${post.id}/800/600`" :alt="post.title">
                         <div class="post-overlay-luxury">
-                            <span>Read Story</span>
+                            <span>Прочети историята</span>
                         </div>
                     </div>
                     <div class="post-info-luxury">
-                        <span class="post-cat">Nature Journal</span>
+                        <span class="post-cat">Природа</span>
                         <h3 class="post-title">{{ post.title }}</h3>
                         <div class="post-footer-luxury">
                             <span>{{ formatDate(post.created_at) }}</span>
                             <span class="dot"></span>
-                            <span>8 min read</span>
+                            <span>8 мин. четене</span>
                         </div>
                     </div>
                 </article>
@@ -107,6 +126,31 @@ onMounted(() => {
     color: var(--color-sage);
     margin-top: 16px;
     font-size: 18px;
+}
+
+.sorting-controls {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+}
+
+.sort-dropdown select {
+    background: transparent;
+    border: 1px solid rgba(15, 26, 15, 0.1);
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: var(--color-midnight);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.sort-dropdown select:hover {
+    border-color: var(--color-gold);
 }
 
 .post-grid-luxury {
