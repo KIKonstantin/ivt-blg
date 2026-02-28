@@ -76,7 +76,19 @@ async function migrate() {
     `);
     console.log('  ✓ comments');
 
-    // 6. Authors
+    // 6. Image blobs (for Vercel — no filesystem access)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS blobs (
+        id SERIAL PRIMARY KEY,
+        filename TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        data BYTEA NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('  ✓ blobs');
+
+    // 7. Authors
     await client.query(`
       CREATE TABLE IF NOT EXISTS authors (
         id SERIAL PRIMARY KEY,

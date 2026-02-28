@@ -1,6 +1,4 @@
-import { writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
-import { randomUUID } from 'node:crypto'
+import { pool } from '../utils/db'
 
 export default defineEventHandler(async (event) => {
   const formData = await readMultipartFormData(event)
@@ -19,22 +17,20 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Basic validation for image types
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   if (file.type && !allowedTypes.includes(file.type)) {
-     throw createError({
+    throw createError({
       statusCode: 400,
       statusMessage: 'Only images are allowed'
     })
   }
 
-  const ext = file.filename.split('.').pop()
-  const fileName = `${randomUUID()}.${ext}`
-  const filePath = join(process.cwd(), 'public/uploads', fileName)
-
-  await writeFile(filePath, file.data)
+  const { rows } = await pool.query(
+    'INSERT INTO blobs (filename, mime_type, data) VALUES ($1, $2, $3) RETURNING id',
+    [file.filename, file.type || 'image/jpeg', file.data]
+  )
 
   return {
-    url: `/uploads/${fileName}`
+    url: `/api/images/${rows[0].id}`
   }
 })
