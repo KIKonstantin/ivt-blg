@@ -322,7 +322,7 @@ const handleNewsletterSubmit = () => {
     <!-- Footer -->
     <footer id="footer">
       <div class="footer-content">
-        <div>© 2024 КОРЕНИ</div>
+        <div>© 2026 КОРЕНИ</div>
         <div class="footer-links">
           <a href="#">Instagram</a>
           <a href="#">Pinterest</a>
