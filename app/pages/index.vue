@@ -1,5 +1,7 @@
 <script setup>
 import { onMounted, computed } from 'vue'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const { data: posts, pending, error } = await useFetch('/api/posts')
 
@@ -23,17 +25,11 @@ useHead({
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
     { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap' }
-  ],
-  script: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js' }
   ]
 })
 
 onMounted(() => {
-  const initGSAP = () => {
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger);
 
       // Hero entrance animation
       const heroTl = gsap.timeline();
@@ -203,12 +199,6 @@ onMounted(() => {
           start: "top 90%"
         }
       });
-    } else {
-      setTimeout(initGSAP, 100);
-    }
-  };
-
-  initGSAP();
 });
 
 const scrollToFeatured = () => {

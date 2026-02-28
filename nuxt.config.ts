@@ -13,6 +13,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
 
   runtimeConfig: {
-    databaseUrl: process.env.DATABASE_URL
+    databaseUrl: process.env.NUXT_DATABASE_URL || process.env.DATABASE_URL
   },
 })
