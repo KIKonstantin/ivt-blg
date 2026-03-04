@@ -34,7 +34,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image'
 })
 onMounted(() => {
-  console.log('Test GIT PR');
+  console.log('Test GIT PR 2');
 });
 </script>
 
