@@ -1,4 +1,5 @@
 <script setup>
+
 const route = useRoute()
 const isHome = computed(() => route.path === '/')
 const isArticle = computed(() => route.path.startsWith('/posts/'))
