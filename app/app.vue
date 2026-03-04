@@ -1,4 +1,6 @@
 <script setup>
+import { onMounted } from 'vue'
+
 const route = useRoute()
 const isHome = computed(() => route.path === '/')
 const isArticle = computed(() => route.path.startsWith('/posts/'))
@@ -31,6 +33,9 @@ useSeoMeta({
   twitterImage: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&q=80',
   twitterCard: 'summary_large_image'
 })
+onMounted(() => {
+  console.log('Test GIT PR');
+});
 </script>
 
 <template>
